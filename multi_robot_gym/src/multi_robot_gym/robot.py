@@ -3,9 +3,10 @@ import robot_sensor
 
 
 class Robot:
-    def __init__(self):
+    def __init__(self,robot_name=''):
         self.actuators=[]
         self.sensors=[]
+        self.robot_name=robot_name
 
     def act_once(self, actions):
         for actuator, action in self.actuators, actions:
