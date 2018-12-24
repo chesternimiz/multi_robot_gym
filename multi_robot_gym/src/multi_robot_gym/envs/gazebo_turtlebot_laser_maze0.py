@@ -5,7 +5,7 @@ from gym.envs.registration import register
 from sensor_msgs.msg import LaserScan
 
 register(
-    id='Gazebo-Turtlebot-Laser-Maze-0',
+    id='GazeboTurtlebotLaserMaze0-v0',
     entry_point='multi_robot_gym:envs.gazebo_turtlebot_laser_maze0.GazeboTurtlebotLaserMaze0',
     timestep_limit=1000,
 )

@@ -9,13 +9,13 @@ class Robot:
         self.robot_name=robot_name
 
     def act_once(self, actions):
-        for actuator, action in self.actuators, actions:
-            actuator.act_once(action)
+        for i in range(len(self.actuators)):
+            self.actuators[i].act_once(actions[i])
 
     def observe_once(self):
         observation = []
         for sensor in self.sensors:
-            observation.append(sensor.wait_for_one_msg)   # TODO: parallel?
+            observation.append(sensor.wait_for_one_msg())   # TODO: parallel?
         return observation
 
     def get_last_ob(self):

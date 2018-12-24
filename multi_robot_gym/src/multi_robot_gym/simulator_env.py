@@ -3,6 +3,7 @@ import gym
 import numpy as np
 from gym.utils import seeding
 
+
 class SimulatorEnv(gym.Env):
     def __init__(self,namespace=''):
         self.namespace = namespace
@@ -32,8 +33,8 @@ class SimulatorEnv(gym.Env):
 
     def step(self, action):   # action: [ [robot0_actuator_0, r0a1, r0a2...], [r1a0]...  ]
         self.unpause_sim()
-        for robot, act in self.robots, action:
-            robot.act_once(act)
+        for i in range(len(self.robots)):
+            self.robots[i].act_once(action[i])
         observation = []
         for robot in self.robots:
             observation.append(robot.observe_once())

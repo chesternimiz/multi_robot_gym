@@ -5,7 +5,7 @@ import rospy
 
 class LaserScanner(robot_sensor.RobotSensor):
     def __init__(self, namespace=''):
-        super(LaserScanner, self).__init__(namespace)
+        robot_sensor.RobotSensor.__init__(self, namespace)
 
     def wait_for_one_msg(self):
         data = None
