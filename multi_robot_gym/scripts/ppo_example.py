@@ -19,8 +19,8 @@ if __name__ == '__main__':
 
     rospy.init_node('ppo_example', anonymous=True)
     env = gym.make('GazeboTurtlebotLaserMaze0-v0')
-    observation_space = Box(low=-numpy.inf, high=numpy.inf, shape=(1, 100), dtype=numpy.float32)
-    action_space = Box(low=-0.3, high=0.3, shape=(1, 1), dtype=numpy.float32)
+    observation_space = Box(low=-numpy.inf, high=numpy.inf, shape=tuple([100]), dtype=numpy.float32)
+    action_space = Box(low=-0.3, high=0.3, shape=tuple([1]), dtype=numpy.float32)
     PPO = PPOAgent(action_space=action_space, observation_space=observation_space)
 
     last100Scores = [0] * 100
@@ -43,12 +43,12 @@ if __name__ == '__main__':
         episode_step = 0
 
         # run until env returns done
-        while not done:
+        for t in range(PPO.local_steps_per_epoch):
             # env.render()
             a, v_t, logp_t = PPO.get_action(observation)
             PPO.add_experience(observation, a, r, v_t, logp_t)
-            env_action = [[[0, 0, 0, a]]]
-
+            env_action = [[[0.2, 0, 0, a[0][0]*0.3]]]
+            # print env_action, a[0][0]*0.3
             newObservation, reward, done, info = env.step(env_action)
             newObservation = numpy.asarray(newObservation[0][0].ranges)
             ep_ret += r
@@ -66,8 +66,11 @@ if __name__ == '__main__':
                     m, s = divmod(int(time.time() - start_time), 60)
                     h, m = divmod(m, 60)
                     print ("EP " + str(epoch) + " - " + format(episode_step + 1) + "/" + str(steps) + " Episode steps - last100 Steps : " + str((sum(last100Scores) / len(last100Scores))) + " - Cumulated R: " + str(ep_ret) + "  Time: %d:%02d:%02d" % (h, m, s))
-
+                observation, r, done, ep_ret, ep_len = env.reset(), 0, False, 0, 0
+                observation = numpy.asarray(observation[0][0].ranges)
+                episode_step = 0
             episode_step += 1
+        print "PPO updating"
         PPO.update()
 
     env.close()

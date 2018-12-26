@@ -70,7 +70,7 @@ class PPOBuffer:
         the buffer, with advantages appropriately normalized (shifted to have
         mean zero and std one). Also, resets some pointers in the buffer.
         """
-        assert self.ptr == self.max_size    # buffer has to be full before you can get
+        # assert self.ptr == self.max_size    # buffer has to be full before you can get
         self.ptr, self.path_start_idx = 0, 0
         # the next two lines implement the advantage normalization trick
         # adv_mean, adv_std = mpi_statistics_scalar(self.adv_buf)
@@ -79,7 +79,7 @@ class PPOBuffer:
         sum = np.sum(x)
         adv_mean = sum / length
         adv_std = np.sqrt(np.sum((x-adv_mean)**2)/length)
-        self.adv_buf = (self.adv_buf - adv_mean) / adv_std
+        self.adv_buf = (self.adv_buf - adv_mean) / (adv_std+0.001)
         return [self.obs_buf, self.act_buf, self.adv_buf, 
                 self.ret_buf, self.logp_buf]
 
@@ -270,13 +270,14 @@ class PPOAgent:
         # Share information about action space with policy architecture
         ac_kwargs = dict()
         ac_kwargs['action_space'] = action_space
+        #ac_kwargs['output_activation'] = tf.tanh
 
         # Inputs to computation graph
         self.x_ph,  self.a_ph = core.placeholders_from_spaces(observation_space, action_space)
         self.adv_ph, self.ret_ph, self.logp_old_ph = core.placeholders(None, None, None)
 
         # Main outputs from computation graph
-        self.pi, self.logp, self.logp_pi, self.v = core.actor_critic(self.x_ph, self.a_ph, **ac_kwargs)
+        self.pi, self.logp, self.logp_pi, self.v = core.mlp_actor_critic(self.x_ph, self.a_ph, output_activation=tf.tanh,**ac_kwargs)
 
         # Need all placeholders in *this* order later (to zip with data from buffer)
         self.all_phs = [self.x_ph, self.a_ph, self.adv_ph, self.ret_ph, self.logp_old_ph]
@@ -285,11 +286,11 @@ class PPOAgent:
         self.get_action_ops = [self.pi, self.v, self.logp_pi]
 
         # Experience buffer
-        steps_per_epoch = 4000
-        local_steps_per_epoch = steps_per_epoch
+        steps_per_epoch = 400
+        self.local_steps_per_epoch = steps_per_epoch
         gamma = 0.99
         lam = 0.97
-        self.buf = PPOBuffer(obs_dim, act_dim, local_steps_per_epoch, gamma, lam)
+        self.buf = PPOBuffer(obs_dim, act_dim, self.local_steps_per_epoch, gamma, lam)
 
         # Count variables
         var_counts = tuple(core.count_vars(scope) for scope in ['pi', 'v'])
@@ -299,20 +300,20 @@ class PPOAgent:
         clip_ratio = 0.2
         ratio = tf.exp(self.logp - self.logp_old_ph)  # pi(a|s) / pi_old(a|s)
         min_adv = tf.where(self.adv_ph > 0, (1 + clip_ratio) * self.adv_ph, (1 - clip_ratio) * self.adv_ph)
-        pi_loss = -tf.reduce_mean(tf.minimum(ratio * self.adv_ph, min_adv))
-        v_loss = tf.reduce_mean((self.ret_ph - self.v) ** 2)
+        self.pi_loss = -tf.reduce_mean(tf.minimum(ratio * self.adv_ph, min_adv))
+        self.v_loss = tf.reduce_mean((self.ret_ph - self.v) ** 2)
 
         # Info (useful to watch during learning)
         self.approx_kl = tf.reduce_mean(self.logp_old_ph - self.logp)  # a sample estimate for KL-divergence, easy to compute
         self.approx_ent = tf.reduce_mean(-self.logp)  # a sample estimate for entropy, also easy to compute
         self.clipped = tf.logical_or(ratio > (1 + clip_ratio), ratio < (1 - clip_ratio))
         self.clipfrac = tf.reduce_mean(tf.cast(self.clipped, tf.float32))
-        pi_lr = 3e-4
+        pi_lr = 1e-4
         vf_lr = 1e-3
         pi_optimizer = tf.train.AdadeltaOptimizer(learning_rate=pi_lr)
         vf_optimizer = tf.train.AdadeltaOptimizer(learning_rate=vf_lr)
-        self.train_pi = pi_optimizer.minimize(pi_loss)
-        self.train_v = vf_optimizer.minimize(v_loss)
+        self.train_pi = pi_optimizer.minimize(self.pi_loss)
+        self.train_v = vf_optimizer.minimize(self.v_loss)
         self.train_pi_iters = 80
         self.train_v_iters = 80
         self.target_kl = 0.01

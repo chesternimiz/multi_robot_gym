@@ -11,7 +11,9 @@ def combined_shape(length, shape=None):
     # return (length, shape) if np.isscalar(shape) else (length, *shape)
     if np.isscalar(shape):
         return (length, shape)
-    return (length, shape)
+    shape = list(shape)
+    shape.insert(0,length)
+    return tuple(shape)
 
 def placeholder(dim=None):
     return tf.placeholder(dtype=tf.float32, shape=combined_shape(None,dim))
