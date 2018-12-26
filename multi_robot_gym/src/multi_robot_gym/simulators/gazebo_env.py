@@ -39,7 +39,7 @@ class GazeboEnv(simulator_env.SimulatorEnv):
     def ep_end(self, observation, action):
         raise NotImplementedError
 
-    def get_reward(self, observation, action):
+    def get_reward(self, observation, action, done):
         raise NotImplementedError
 
     def get_info(self, observation):

@@ -10,7 +10,7 @@ class MoveBase(robot_actuator.RobotActuator):
             self.publisher = rospy.Publisher(namespace+'/cmd_vel', Twist, queue_size=10)
         else:
             self.publisher = rospy.Publisher('cmd_vel', Twist, queue_size=10) # remove / to use rosnode namespace to support multi envs in multi process
-        self.constX = None
+        self.constX = None   # support simple maze env, const linear speed
 
     def act_once(self, action):
         msg=Twist()

@@ -14,7 +14,7 @@ register(
 class GazeboTurtlebotLaserMaze0(gazebo_env.GazeboEnv):
     def __init__(self):
         super(GazeboTurtlebotLaserMaze0, self).__init__()
-        self.robots.append(turtlebot2_laser.Turtlebot2Laser())
+        self.robots.append(turtlebot2_laser.Turtlebot2Laser(constlinearspeed=True))
         self.robots[0].actuators[0].constX = 0.2
         self.cumulated_R = 0
         self.max_ang_speed = 0.3
@@ -31,7 +31,9 @@ class GazeboTurtlebotLaserMaze0(gazebo_env.GazeboEnv):
                 episode_done = True
         return episode_done
 
-    def get_reward(self, observation, action):
-        angular_speed = action[0][0][3]  # robot 0 actuator 0 action 3
+    def get_reward(self, observation, action, done):
+        angular_speed = action[0][0][3]  # robot 0 actuator 0 action space 3
         reward = round(15 * (self.max_ang_speed - abs(angular_speed) + 0.0335), 2)
+        if done:
+            reward = -200
         return reward

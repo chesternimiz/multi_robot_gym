@@ -25,7 +25,7 @@ class SimulatorEnv(gym.Env):
     def ep_end(self, observation, action):
         raise NotImplementedError
 
-    def get_reward(self, observation, action):
+    def get_reward(self, observation, action, done):
         raise NotImplementedError
 
     def get_info(self,observation):
@@ -41,7 +41,7 @@ class SimulatorEnv(gym.Env):
         self.pause_sim()
 
         done = self.ep_end(observation, action)
-        reward = self.get_reward(observation, action)  # for envs where rewards are calculated from ground truth, define and add a ground truth sensor to robots
+        reward = self.get_reward(observation, action, done)  # for envs where rewards are calculated from ground truth, define and add a ground truth sensor to robots
         info = self.get_info(observation)
         return observation, reward, done, info
 
