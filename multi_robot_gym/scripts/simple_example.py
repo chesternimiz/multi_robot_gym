@@ -16,7 +16,7 @@ if __name__ == '__main__':
         cumulated_R = 0
         while not done:
             action = [ [[0,0,0,0]] ]  # robot-actuator-actionDim
-            observation, done, reward, info = env.step(action)
+            observation, reward, done, info = env.step(action)
             laser_msg = observation[0][0]   # robot0 actuator0
             # print laser_msg
             cumulated_R += reward

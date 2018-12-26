@@ -43,7 +43,7 @@ class SimulatorEnv(gym.Env):
         done = self.ep_end(observation, action)
         reward = self.get_reward(observation, action)  # for envs where rewards are calculated from ground truth, define and add a ground truth sensor to robots
         info = self.get_info(observation)
-        return observation, done, reward, info
+        return observation, reward, done, info
 
     def reset(self):
         self.reset_sim()
