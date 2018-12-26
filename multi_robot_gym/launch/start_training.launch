@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-    <node pkg="multi_robot_gym" name="dqn_example" type="dqn_example.py" output="screen">
+    <node pkg="multi_robot_gym" name="simple_example" type="simple_example.py" output="screen">
         <remap from="cmd_vel" to="mobile_base/commands/velocity" />
     </node>
 </launch>
