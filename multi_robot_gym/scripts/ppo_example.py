@@ -21,7 +21,11 @@ if __name__ == '__main__':
     env = gym.make('GazeboTurtlebotLaserMaze0-v0')
     observation_space = Box(low=-numpy.inf, high=numpy.inf, shape=tuple([100]), dtype=numpy.float32)
     action_space = Box(low=-0.3, high=0.3, shape=tuple([1]), dtype=numpy.float32)
+    #print action_space.shape
+    #print observation_space.shape
     PPO = PPOAgent(action_space=action_space, observation_space=observation_space)
+    #print PPO.a_ph.shape
+    #print PPO.x_ph.shape
 
     last100Scores = [0] * 100
     last100ScoresIndex = 0
@@ -46,15 +50,16 @@ if __name__ == '__main__':
         for t in range(PPO.local_steps_per_epoch):
             # env.render()
             a, v_t, logp_t = PPO.get_action(observation)
-            PPO.add_experience(observation, a, r, v_t, logp_t)
+            PPO.add_experience(observation, a[0], r, v_t, logp_t)
             env_action = [[[0.2, 0, 0, a[0][0]*0.3]]]
             # print env_action, a[0][0]*0.3
-            newObservation, reward, done, info = env.step(env_action)
+            newObservation, r, done, info = env.step(env_action)
             newObservation = numpy.asarray(newObservation[0][0].ranges)
             ep_ret += r
             ep_len += 1
 
             if done or episode_step >= steps:
+                PPO.finish_path(r, done, newObservation)
                 last100Scores[last100ScoresIndex] = episode_step
                 last100ScoresIndex += 1
                 if last100ScoresIndex >= 100:
@@ -70,6 +75,7 @@ if __name__ == '__main__':
                 observation = numpy.asarray(observation[0][0].ranges)
                 episode_step = 0
             episode_step += 1
+            observation = newObservation
         print "PPO updating"
         PPO.update()
 

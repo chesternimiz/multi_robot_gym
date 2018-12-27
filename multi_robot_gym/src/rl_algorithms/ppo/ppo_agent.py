@@ -70,7 +70,7 @@ class PPOBuffer:
         the buffer, with advantages appropriately normalized (shifted to have
         mean zero and std one). Also, resets some pointers in the buffer.
         """
-        # assert self.ptr == self.max_size    # buffer has to be full before you can get
+        assert self.ptr == self.max_size    # buffer has to be full before you can get
         self.ptr, self.path_start_idx = 0, 0
         # the next two lines implement the advantage normalization trick
         # adv_mean, adv_std = mpi_statistics_scalar(self.adv_buf)
@@ -79,7 +79,7 @@ class PPOBuffer:
         sum = np.sum(x)
         adv_mean = sum / length
         adv_std = np.sqrt(np.sum((x-adv_mean)**2)/length)
-        self.adv_buf = (self.adv_buf - adv_mean) / (adv_std+0.001)
+        self.adv_buf = (self.adv_buf - adv_mean) / adv_std
         return [self.obs_buf, self.act_buf, self.adv_buf, 
                 self.ret_buf, self.logp_buf]
 
@@ -308,7 +308,7 @@ class PPOAgent:
         self.approx_ent = tf.reduce_mean(-self.logp)  # a sample estimate for entropy, also easy to compute
         self.clipped = tf.logical_or(ratio > (1 + clip_ratio), ratio < (1 - clip_ratio))
         self.clipfrac = tf.reduce_mean(tf.cast(self.clipped, tf.float32))
-        pi_lr = 1e-4
+        pi_lr = 3e-4
         vf_lr = 1e-3
         pi_optimizer = tf.train.AdadeltaOptimizer(learning_rate=pi_lr)
         vf_optimizer = tf.train.AdadeltaOptimizer(learning_rate=vf_lr)
@@ -324,6 +324,8 @@ class PPOAgent:
     def update(self):
         inputs = {k:v for k,v in zip(self.all_phs, self.buf.get())}
         pi_l_old, v_l_old, ent = self.sess.run([self.pi_loss, self.v_loss, self.approx_ent], feed_dict=inputs)
+        print pi_l_old
+        print v_l_old
 
         # Training
         for i in range(self.train_pi_iters):
@@ -340,6 +342,11 @@ class PPOAgent:
 
     def get_action(self, observation):
         a, v_t, logp_t = self.sess.run(self.get_action_ops, feed_dict={self.x_ph: observation.reshape(1, -1)})
+        #print observation
+        #print observation.reshape(1,-1)
+        #print a
+        #print v_t
+        #print logp_t
         return a, v_t, logp_t
 
     def add_experience(self, o, a, r, v_t, logp_t):
