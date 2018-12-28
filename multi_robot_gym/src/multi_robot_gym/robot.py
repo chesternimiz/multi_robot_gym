@@ -1,6 +1,6 @@
 import robot_actuator
 import robot_sensor
-
+import threading
 
 class Robot:
     def __init__(self,robot_name=''):
@@ -23,3 +23,7 @@ class Robot:
         for sensor in self.sensors:
             observation.append(sensor.data_queue[-1])
         return observation
+
+    def observe_thread(self, sensor):
+        return sensor.wait_for_one_msg()
+

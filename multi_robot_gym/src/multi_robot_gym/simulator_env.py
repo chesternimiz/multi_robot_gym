@@ -2,6 +2,7 @@ import rospy
 import gym
 import numpy as np
 from gym.utils import seeding
+import threading
 
 
 class SimulatorEnv(gym.Env):
