@@ -286,7 +286,7 @@ class PPOAgent:
         self.get_action_ops = [self.pi, self.v, self.logp_pi]
 
         # Experience buffer
-        steps_per_epoch = 400
+        steps_per_epoch = 1000
         self.local_steps_per_epoch = steps_per_epoch
         gamma = 0.99
         lam = 0.97
