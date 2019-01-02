@@ -1,6 +1,6 @@
 import robot_actuator
 import robot_sensor
-import threading
+import rospy
 
 class Robot:
     def __init__(self,robot_name=''):
@@ -15,15 +15,30 @@ class Robot:
     def observe_once(self):
         observation = []
         for sensor in self.sensors:
-            observation.append(sensor.wait_for_one_msg())   # TODO: parallel?
+            sensor.wait_new_msg()
+        finish = False
+        while not finish:
+            rospy.rostime.wallsleep(0.01)
+            finish = True
+            for sensor in self.sensors:
+                finish = finish and sensor.check_new_msg()
+        for sensor in self.sensors:
+            observation.append(sensor.get_last_msg())
         return observation
 
     def get_last_ob(self):
         observation=[]
         for sensor in self.sensors:
-            observation.append(sensor.data_queue[-1])
+            observation.append(sensor.get_last_msg())
         return observation
 
-    def observe_thread(self, sensor):
-        return sensor.wait_for_one_msg()
+    def begin_observation(self):
+        for sensor in self.sensors:
+            sensor.wait_new_msg()
+
+    def check_observation(self):
+        for sensor in self.sensors:
+            if sensor.check_new_msg() == False:
+                return False
+        return True
 

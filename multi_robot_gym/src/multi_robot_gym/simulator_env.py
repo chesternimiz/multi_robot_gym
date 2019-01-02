@@ -2,7 +2,6 @@ import rospy
 import gym
 import numpy as np
 from gym.utils import seeding
-import threading
 
 
 class SimulatorEnv(gym.Env):
@@ -36,10 +35,21 @@ class SimulatorEnv(gym.Env):
         self.unpause_sim()
         for i in range(len(self.robots)):
             self.robots[i].act_once(action[i])
+        #observation = []
+        #for robot in self.robots:
+        #    observation.append(robot.observe_once())
+        for robot in self.robots:
+            robot.begin_observation()
+        finish = False
+        while not finish:
+            finish = True
+            for robot in self.robots:
+                finish = (finish and robot.check_observation())
+            rospy.rostime.wallsleep(0.01)
+        self.pause_sim()
         observation = []
         for robot in self.robots:
-            observation.append(robot.observe_once())
-        self.pause_sim()
+            observation.append(robot.get_last_ob())
 
         done = self.ep_end(observation, action)
         reward = self.get_reward(observation, action, done)  # for envs where rewards are calculated from ground truth, define and add a ground truth sensor to robots
