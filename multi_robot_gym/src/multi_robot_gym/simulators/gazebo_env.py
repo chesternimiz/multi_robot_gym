@@ -10,6 +10,7 @@ class GazeboEnv(simulator_env.SimulatorEnv):
         self.unpause = rospy.ServiceProxy('gazebo/unpause_physics', Empty)
         self.pause = rospy.ServiceProxy('gazebo/pause_physics', Empty)
         self.reset_simulation = rospy.ServiceProxy('gazebo/reset_simulation', Empty)
+        self.reset_world = rospy.ServiceProxy('gazebo/reset_world', Empty)
 
     def pause_sim(self):
         rospy.wait_for_service('gazebo/pause_physics')
@@ -27,9 +28,10 @@ class GazeboEnv(simulator_env.SimulatorEnv):
 
     def reset_sim(self):
         self.reset_ops()
-        rospy.wait_for_service('gazebo/reset_simulation')
+        rospy.wait_for_service('gazebo/reset_world')
         try:
-            self.reset_simulation()
+            # self.reset_simulation()
+            self.reset_world()
         except rospy.ServiceException as e:
             print ("gazebo/reset_simulation service call failed")
 

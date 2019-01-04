@@ -6,10 +6,7 @@ from geometry_msgs.msg import Twist
 class MoveBase(robot_actuator.RobotActuator):
     def __init__(self, namespace=''):
         robot_actuator.RobotActuator.__init__(self, namespace)
-        if namespace != '':
-            self.publisher = rospy.Publisher(namespace+'/cmd_vel', Twist, queue_size=10)
-        else:
-            self.publisher = rospy.Publisher('cmd_vel', Twist, queue_size=10) # remove / to use rosnode namespace to support multi envs in multi process
+        self.publisher = rospy.Publisher(namespace+'cmd_vel', Twist, queue_size=10)
         self.constX = None   # support simple maze env, const linear speed
 
     def act_once(self, action):

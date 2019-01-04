@@ -16,7 +16,7 @@ class RobotSensor:
         self.last_count = 0
 
     def subscribe(self):
-        self.subscriber = rospy.Subscriber(self.namespace+self.topic, self.msgtype, self.cb)
+            self.subscriber = rospy.Subscriber(self.namespace+self.topic, self.msgtype, self.cb)
 
     def cb(self, msg):
         if len(self.data_queue) >= self.max_queue_length:

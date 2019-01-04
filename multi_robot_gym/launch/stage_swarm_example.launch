@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node pkg="multi_robot_gym" name="stage_swarm_example" type="stage_swarm_example.py" output="screen">
+    </node>
+</launch>

@@ -11,7 +11,7 @@
 
   <!-- Name of the map to use (without path nor extension) and initial position -->
   <arg name="map_file"       default=" $(find stage_launch)/maps/swarm.yaml"/> <!-- robopark_plan -->
-  <arg name="world_file"     default=" $(find stage_launch)/world/swarm_stage_10v0.world"/>
+  <arg name="world_file"     default=" $(find stage_launch)/world/swarm_stage_5v0.world"/>
 
   <param name="/use_sim_time" value="true"/>
  
@@ -22,11 +22,6 @@
     <remap from="robot_2/base_scan" to="robot_2/scan"/>
     <remap from="robot_3/base_scan" to="robot_3/scan"/>
     <remap from="robot_4/base_scan" to="robot_4/scan"/>
-    <remap from="robot_5/base_scan" to="robot_5/scan"/>
-    <remap from="robot_6/base_scan" to="robot_6/scan"/>
-    <remap from="robot_7/base_scan" to="robot_7/scan"/>
-    <remap from="robot_8/base_scan" to="robot_8/scan"/>
-    <remap from="robot_9/base_scan" to="robot_9/scan"/>
     <remap from="/clock" to = "stage/clock" />
   </node>
 
@@ -35,7 +30,7 @@
   </node>
   
   <node name="stage_neighbor_sensors" pkg="stage_launch" type="stage_neighbor_position_sensors.py" >
-    <param name="robot_num" value="10" />
+    <param name="robot_num" value="5" />
     <param name="R" value="10.0" />
   </node>
 

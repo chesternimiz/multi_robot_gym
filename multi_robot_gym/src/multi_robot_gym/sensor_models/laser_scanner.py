@@ -5,7 +5,7 @@ import rospy
 
 class LaserScanner(robot_sensor.RobotSensor):
     def __init__(self, namespace=''):
-        robot_sensor.RobotSensor.__init__(self, topic="/scan", msgtype=LaserScan, namespace=namespace)
+        robot_sensor.RobotSensor.__init__(self, topic="scan", msgtype=LaserScan, namespace=namespace)
 
 
 
