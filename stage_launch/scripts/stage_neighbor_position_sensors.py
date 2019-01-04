@@ -12,7 +12,9 @@ class OdomReceiver:
         self.sub = rospy.Subscriber("robot_"+str(self.index)+"/odom",Odometry, self.cb)
 
     def cb(self,msg):
-        self
+        self.x = msg.pose.pose.position.x
+        self.y = msg.pose.pose.position.y
+        self.z = msg.pose.pose.position.z
 
 
 
